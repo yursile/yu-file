@@ -1,5 +1,21 @@
-var fs = require('fs');
-var ONLINEPATH = "http://news.sohu.com/"
+#!/usr/bin/env node
+
+var fs = require('fs')
+
+
+
+var program = require('commander');
+
+program
+  .version('0.0.1')
+  .usage('[options] <htmlFile ...>')
+  .option('-o, --optional [value]', 'An optional value')
+  .parse(process.argv);
+
+
+
+var htmlFiles = program.args;
+var ONLINEPATH = program.optional;
 
 class MyUtil {
 
@@ -12,34 +28,46 @@ class MyUtil {
     }
 }
 
+if(htmlFiles.length<2){
+    stderr("arguments not valid")
+    process.exit(1);
+}
 
+var stdinFile = htmlFiles[0];
+var stdoutFile = htmlFiles[1];
 
-fs.readFile('./test.js', "utf-8", (err, data) => {
+fs.readFile(stdinFile, "utf-8", (err, data) => {
     if (err) throw err;
 
   var s =  MyUtil.replacePathClass(MyUtil.replacePath(data));
-    fs.writeFile('write.js', s, (err) => {
+    fs.writeFile(stdoutFile, s, (err) => {
         if (err) throw err;
-        console.log('saved!');
+        console.log(stdoutFile+' saved!');
     });
 });
 
 
-var program = require('commander');
+// 标准终端输出
+function stdout(message) {
+    process.stdout.write(message + '\n');
+}
 
-program
-  .version('0.0.1')
-  .option('-p, --peppers', 'Add peppers')
-  .option('-P, --pineapple', 'Add pineapple')
-  .option('-b, --bbq', 'Add bbq sauce')
-  .option('-c, --cheese [type]', 'Add the specified type of cheese [marble]', 'marbl')
-  .parse(process.argv);
 
-console.log('you ordered a pizza with:');
-if (program.peppers) console.log('  - peppers');
-if (program.pineapple) console.log('  - pineapple');
-if (program.bbq) console.log('  - bbq');
-console.log('  - %s cheese', program.cheese);
+// 错误输出
+function stderr(message) {
+    process.stdout.write(message + '\n');
+}
+
+
+// 输出日志
+function log() {
+    if (process.stdout.isTTY) {
+        process.stdout.write(Array.prototype.join.call(arguments, ' ') + '\n');
+    }
+}
+
+
+
 
 
 
